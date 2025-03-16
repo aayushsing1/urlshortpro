@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Please Wait - URL Shortener{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[100vh] bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all duration-700 hover:shadow-2xl border border-slate-100" 
+         style="background-color: {{ url.interstitial1_background }}; color: {{ url.interstitial1_text_color }}">
+
+        <!-- Abstract wave animation background -->
+        <div class="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div class="wave-animation"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-8 py-12 text-center relative z-10">
+            <!-- Animated icon -->
+            <div class="flex justify-center mb-10">
+                <div class="h-20 w-20 rounded-full flex items-center justify-center relative">
+                    <div class="absolute inset-0 bg-blue-500/10 rounded-full pulse-animation"></div>
+                    <div class="absolute inset-1 bg-blue-500/20 rounded-full pulse-animation-delay"></div>
+                    <div class="relative h-14 w-14 bg-blue-100 flex items-center justify-center rounded-full shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600 loading-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-bold mb-6 fade-up" style="color: {{ url.interstitial1_text_color }}">{{ url.interstitial1_title }}</h2>
+            <p class="text-lg mb-12 max-w-md mx-auto opacity-90 fade-up-delay">{{ url.interstitial1_message }}</p>
+
+            <div class="mb-10 fade-up-delay-2">
+                <div class="flex justify-center items-center mb-4">
+                    <div class="w-full bg-slate-200/60 rounded-full h-3 max-w-sm overflow-hidden backdrop-blur-sm shadow-inner">
+                        <div id="progress-bar" class="loading-progress h-3 rounded-full transition-all duration-1000 ease-out" 
+                             style="width: 0%; background: linear-gradient(90deg, rgba(37,99,235,1) 0%, rgba(59,130,246,1) 100%)"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between max-w-sm mx-auto text-sm opacity-70">
+                    <span class="slide-in-left">Please wait</span>
+                    <span id="countdown" class="font-medium slide-in-right">{{ url.interstitial1_wait_time }}</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-2 text-sm opacity-70 fade-up-delay-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p>Redirecting you automatically</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    /* Wave animation */
+    .wave-animation {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: radial-gradient(circle, transparent 20%, currentColor 20%, currentColor 22%, transparent 22%), 
+                    radial-gradient(circle, transparent 20%, currentColor 20%, currentColor 22%, transparent 22%);
+        background-size: 100px 100px;
+        background-position: 0 0, 50px 50px;
+        animation: wave-move 8s linear infinite;
+    }
+
+    @keyframes wave-move {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        100% { transform: translate(-50px, -50px) rotate(3deg); }
+    }
+
+    /* Pulse animations */
+    .pulse-animation {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .pulse-animation-delay {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        animation-delay: 0.5s;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    /* Loading icon animation */
+    .loading-icon {
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Fade and slide animations */
+    .fade-up {
+        animation: fadeUp 0.8s ease forwards;
+    }
+
+    .fade-up-delay {
+        animation: fadeUp 0.8s ease forwards;
+        animation-delay: 0.2s;
+        opacity: 0;
+    }
+
+    .fade-up-delay-2 {
+        animation: fadeUp 0.8s ease forwards;
+        animation-delay: 0.4s;
+        opacity: 0;
+    }
+
+    .fade-up-delay-3 {
+        animation: fadeUp 0.8s ease forwards;
+        animation-delay: 0.6s;
+        opacity: 0;
+    }
+
+    @keyframes fadeUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .slide-in-left {
+        animation: slideInLeft 0.8s ease forwards;
+        animation-delay: 0.5s;
+        opacity: 0;
+    }
+
+    .slide-in-right {
+        animation: slideInRight 0.8s ease forwards;
+        animation-delay: 0.5s;
+        opacity: 0;
+    }
+
+    @keyframes slideInLeft {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 0.7; }
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 0.7; }
+    }
+
+    /* Loading progress animation */
+    .loading-progress {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .loading-progress::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 1.5s infinite;
+        transform: translateX(-100%);
+    }
+
+    @keyframes shimmer {
+        100% { transform: translateX(100%); }
+    }
+
+    /* Page transition animation */
+    .fade-out {
+        animation: fadeOut 0.5s ease forwards;
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0; transform: scale(0.97); }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const waitTime = {{ url.interstitial1_wait_time }};
+        const progressBar = document.getElementById('progress-bar');
+        const countdown = document.getElementById('countdown');
+        let timeLeft = waitTime;
+
+        function updateCountdown() {
+            const progressPercentage = ((waitTime - timeLeft) / waitTime) * 100;
+            progressBar.style.width = progressPercentage + '%';
+            countdown.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+
+                // Add fade-out effect before redirect
+                document.querySelector('.max-w-lg').classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = "{% url 'interstitial2' url.short_code %}";
+                }, 500);
+            }
+            timeLeft--;
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    });
+</script>
+{% endblock %}

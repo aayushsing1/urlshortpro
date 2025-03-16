@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% block title %}Create URL - URL Shortener{% endblock %}
+
+{% block extra_head %}
+<style>
+  .fade-in {
+    animation: fadeIn 0.6s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .pulse-button {
+    transition: all 0.3s ease;
+  }
+
+  .pulse-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-section {
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: sectionAppear 0.5s ease forwards;
+    animation-delay: calc(var(--delay) * 0.15s);
+  }
+
+  @keyframes sectionAppear {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .color-input {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .color-input:hover {
+    transform: scale(1.1);
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  .animate-shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg max-w-4xl mx-auto my-8 fade-in">
+    <h2 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white flex items-center slide-in">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+        Create Shortened URL
+    </h2>
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+
+        <div class="form-section" style="--delay: 0">
+            <label for="id_original_url" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Original URL</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                </div>
+                {{ form.original_url.as_widget|default:"" }}
+                <script>
+                    document.getElementById('id_original_url').className = 'w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300';
+                </script>
+            </div>
+            {% if form.original_url.errors %}
+                <p class="text-red-500 text-sm mt-2 slide-in">{{ form.original_url.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- First Interstitial Section -->
+        <div class="form-section border-t border-gray-200 dark:border-gray-700 pt-8 mt-8" style="--delay: 1">
+            <div class="flex items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">First Interstitial Page</h3>
+                <div class="ml-3 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">Step 1</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_interstitial1_title" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Title</label>
+                    {{ form.interstitial1_title.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial1_title').className = 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300';
+                    </script>
+                </div>
+                <div>
+                    <label for="id_interstitial1_wait_time" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Wait Time (seconds)</label>
+                    <div class="relative">
+                        <input type="number" name="interstitial1_wait_time" id="id_interstitial1_wait_time" value="{{ form.interstitial1_wait_time.value|default:5 }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label for="id_interstitial1_message" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Message</label>
+                {{ form.interstitial1_message.as_widget|default:"" }}
+                <script>
+                    document.getElementById('id_interstitial1_message').className = 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300';
+                </script>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                    <label for="id_interstitial1_background" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Background Color</label>
+                    {{ form.interstitial1_background.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial1_background').className = 'color-input w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer';
+                    </script>
+                </div>
+                <div>
+                    <label for="id_interstitial1_text_color" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Text Color</label>
+                    {{ form.interstitial1_text_color.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial1_text_color').className = 'color-input w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer';
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Interstitial Section -->
+        <div class="form-section border-t border-gray-200 dark:border-gray-700 pt-8 mt-8" style="--delay: 2">
+            <div class="flex items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Second Interstitial Page</h3>
+                <div class="ml-3 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full dark:bg-green-900 dark:text-green-200">Step 2</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_interstitial2_title" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Title</label>
+                    {{ form.interstitial2_title.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial2_title').className = 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300';
+                    </script>
+                </div>
+                <div>
+                    <label for="id_interstitial2_wait_time" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Wait Time (seconds)</label>
+                    <div class="relative">
+                        <input type="number" name="interstitial2_wait_time" id="id_interstitial2_wait_time" value="{{ form.interstitial2_wait_time.value|default:5 }}" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label for="id_interstitial2_message" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Message</label>
+                {{ form.interstitial2_message.as_widget|default:"" }}
+                <script>
+                    document.getElementById('id_interstitial2_message').className = 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition duration-300';
+                </script>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                    <label for="id_interstitial2_background" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Background Color</label>
+                    {{ form.interstitial2_background.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial2_background').className = 'color-input w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer';
+                    </script>
+                </div>
+                <div>
+                    <label for="id_interstitial2_text_color" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Text Color</label>
+                    {{ form.interstitial2_text_color.as_widget|default:"" }}
+                    <script>
+                        document.getElementById('id_interstitial2_text_color').className = 'color-input w-full h-10 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer';
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button Section -->
+        <div class="form-section pt-6" style="--delay: 3">
+            <button type="submit" class="pulse-button w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md flex items-center justify-center transition-all duration-300">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Create URL
+                    </button>
+                    </div>
+                    </form>
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                    // Add focus animation to input fields
+                    const inputs = document.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('scale-105');
+                    this.classList.add('shadow-lg');
+                    });
+                    input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('scale-105');
+                    this.classList.remove('shadow-lg');
+                    });
+                    });
+
+                    // Color input preview
+                    const colorInputs = document.querySelectorAll('input[type="color"]');
+                    colorInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                    this.parentElement.style.backgroundColor = this.value;
+                    const luminance = getLuminance(this.value);
+                    this.parentElement.style.color = luminance > 0.5 ? '#000' : '#fff';
+                    });
+
+                    // Set initial color preview
+                    if (input.value) {
+                    input.parentElement.style.backgroundColor = input.value;
+                    const luminance = getLuminance(input.value);
+                    input.parentElement.style.color = luminance > 0.5 ? '#000' : '#fff';
+                    }
+                    });
+
+                    // Helper function to calculate color luminance
+                    function getLuminance(hex) {
+                    const r = parseInt(hex.substr(1, 2), 16) / 255;
+                    const g = parseInt(hex.substr(3, 2), 16) / 255;
+                    const b = parseInt(hex.substr(5, 2), 16) / 255;
+
+                    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                    return luminance;
+                    }
+
+                    // Add sequential appearance animation for section headers
+                    const formSections = document.querySelectorAll('.form-section');
+                    formSections.forEach((section, index) => {
+                    section.style.setProperty('--delay', index);
+                    });
+
+                    // Add validation visual feedback
+                    const form = document.querySelector('form');
+                    form.addEventListener('submit', function(event) {
+                    const urlInput = document.getElementById('id_original_url');
+                    if (!urlInput.value.trim()) {
+                    event.preventDefault();
+                    urlInput.classList.add('border-red-500');
+                    urlInput.classList.add('animate-shake');
+
+                    setTimeout(() => {
+                    urlInput.classList.remove('animate-shake');
+                    }, 820);
+                    }
+                    });
+
+                    // Add interactive preview for interstitial pages
+                    document.querySelectorAll('[id^="id_interstitial"]').forEach(input => {
+                    input.addEventListener('input', function() {
+                    updatePreview(this.id.includes('interstitial1') ? 1 : 2);
+                    });
+                    });
+
+                    function updatePreview(pageNum) {
+                    const title = document.getElementById(`id_interstitial${pageNum}_title`).value || `Interstitial ${pageNum}`;
+                    const message = document.getElementById(`id_interstitial${pageNum}_message`).value || 'Please wait...';
+                    const bgColor = document.getElementById(`id_interstitial${pageNum}_background`).value || '#ffffff';
+                    const textColor = document.getElementById(`id_interstitial${pageNum}_text_color`).value || '#000000';
+                    const waitTime = document.getElementById(`id_interstitial${pageNum}_wait_time`).value || 5;
+
+                    // Create or update preview tooltip
+                    let preview = document.getElementById(`preview-${pageNum}`);
+                    if (!preview) {
+                    preview = document.createElement('div');
+                    preview.id = `preview-${pageNum}`;
+                    preview.className = 'fixed bottom-8 right-8 p-4 rounded-lg shadow-xl z-50 transition-all duration-300 transform scale-0 hover:scale-110';
+                    preview.style.maxWidth = '300px';
+                    preview.innerHTML = `
+                    <div class="preview-content">
+                        <h4 class="font-bold text-lg mb-2"></h4>
+                        <p class="mb-3"></p>
+                        <div class="mt-2 text-center">
+                            <div class="inline-block px-4 py-2 rounded-full bg-white bg-opacity-20">
+                                Redirecting in <span class="wait-time">${waitTime}</span>s
+                            </div>
+                        </div>
+                    </div>
+                    <button class="absolute top-2 right-2 text-sm opacity-50 hover:opacity-100">×</button>
+                    `;
+                    document.body.appendChild(preview);
+
+                    // Close button functionality
+                    preview.querySelector('button').addEventListener('click', function() {
+                    preview.classList.remove('scale-100');
+                    preview.classList.add('scale-0');
+                    });
+                    }
+
+                    // Update preview content
+                    preview.style.backgroundColor = bgColor;
+                    preview.style.color = textColor;
+                    preview.querySelector('h4').textContent = title;
+                    preview.querySelector('p').textContent = message;
+                    preview.querySelector('.wait-time').textContent = waitTime;
+
+                    // Show preview
+                    preview.classList.remove('scale-0');
+                    preview.classList.add('scale-100');
+
+                    // Auto-hide after 3 seconds
+                    setTimeout(() => {
+                    preview.classList.remove('scale-100');
+                    preview.classList.add('scale-0');
+                    }, 3000);
+                    }
+
+                    // Add dark mode toggle if it doesn't exist
+                    if (!document.getElementById('dark-mode-toggle')) {
+                    const darkModeToggle = document.createElement('button');
+                    darkModeToggle.id = 'dark-mode-toggle';
+                    darkModeToggle.className = 'fixed top-4 right-4 bg-gray-200 dark:bg-gray-700 p-2 rounded-full shadow-lg transition-all duration-300';
+                    darkModeToggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    `;
+                    document.body.appendChild(darkModeToggle);
+
+                    darkModeToggle.addEventListener('click', function() {
+                    document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('darkMode', document.documentElement.classList.contains('dark') ? 'enabled' : 'disabled');
+
+                    // Update icon
+                    if (document.documentElement.classList.contains('dark')) {
+                    this.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    `;
+                    } else {
+                    this.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    `;
+                    }
+                    });
+
+                    // Set initial state based on user preference
+                    if (localStorage.getItem('darkMode') === 'enabled' || 
+                    (localStorage.getItem('darkMode') === null && 
+                    window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    darkModeToggle.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    `;
+                    }
+                    }
+                    });
+                    </script>
+                    {% endblock %}

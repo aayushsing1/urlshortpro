@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}URL Shortener{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Mobile Navigation Menu (Hidden by default) -->
+    <div id="mobile-menu" class="fixed inset-0 bg-blue-900 bg-opacity-95 z-50 transform transition-transform duration-300 ease-in-out translate-x-full lg:hidden flex flex-col">
+        <div class="flex justify-between items-center p-5 border-b border-blue-800">
+            <h2 class="text-2xl font-bold text-white">Menu</h2>
+            <button id="close-menu" class="text-white text-2xl focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="flex flex-col space-y-4 p-5">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
+                    <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                </a>
+                <a href="{% url 'create_url' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
+                    <i class="fas fa-link mr-2"></i> Create URL
+                </a>
+                <a href="{% url 'logout' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 mt-auto transition duration-200">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login
+                </a>
+                <a href="{% url 'register' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
+                    <i class="fas fa-user-plus mr-2"></i> Register
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                    <i class="fas fa-link text-2xl"></i>
+                    <span class="text-xl md:text-2xl font-bold">URL Shortener</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex items-center space-x-6">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="hover:text-blue-200 transition duration-200 flex items-center">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                        </a>
+                        <a href="{% url 'create_url' %}" class="hover:text-blue-200 transition duration-200 flex items-center">
+                            <i class="fas fa-link mr-2"></i> Create URL
+                        </a>
+                        <a href="{% url 'logout' %}" class="bg-blue-800 hover:bg-blue-900 text-white py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="hover:text-blue-200 transition duration-200 flex items-center">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </a>
+                        <a href="{% url 'register' %}" class="bg-blue-800 hover:bg-blue-900 text-white py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                            <i class="fas fa-user-plus mr-2"></i> Register
+                        </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <button id="menu-button" class="lg:hidden text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-8">
+        <!-- Alert Messages -->
+        {% if messages %}
+            <div class="space-y-2 mb-6">
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded-md shadow-sm flex items-start">
+                        <div class="mr-3">
+                            {% if message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle text-green-500"></i>
+                            {% endif %}
+                        </div>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-8 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center justify-center md:justify-start">
+                        <i class="fas fa-link text-blue-400 text-xl mr-2"></i>
+                        <span class="text-lg font-semibold">URL Shortener</span>
+                    </div>
+                    <p class="text-sm mt-2 text-center md:text-left">Fast, reliable link shortening with analytics</p>
+                </div>
+
+                <div class="text-center md:text-right">
+                    <p>&copy; {% now "Y" %} URL Shortener. All rights reserved.</p>
+                    <div class="mt-2 text-sm text-gray-500">
+                        Powered by Django & Tailwind CSS
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Mobile Menu -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menu-button');
+            const closeMenuButton = document.getElementById('close-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('translate-x-full');
+            });
+
+            closeMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('translate-x-full');
+            });
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

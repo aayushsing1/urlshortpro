@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}URL Stats - {{ url.short_code }} - URL Shortener{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<style>
+    .stats-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    .copy-notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: #4338ca;
+        color: white;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .copy-notification.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-xl shadow-lg fade-in">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h2 class="text-3xl font-bold text-indigo-900">URL Statistics</h2>
+        <a href="{% url 'dashboard' %}" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
+    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl mb-8 fade-in" style="animation-delay: 0.1s">
+        <div class="mb-3">
+            <span class="font-bold text-gray-700">Original URL:</span> 
+            <a href="{{ url.original_url }}" class="text-indigo-600 hover:text-indigo-800 break-all transition-colors" target="_blank">{{ url.original_url }}</a>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold text-gray-700">Short URL:</span> 
+            <a href="{% url 'redirect' url.short_code %}" class="text-indigo-600 hover:text-indigo-800 transition-colors" target="_blank">{{ request.get_host }}/{{ url.short_code }}</a>
+            <button id="copy-button" class="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg transition-all duration-300 pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
+                <span>Copy</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 fade-in" style="animation-delay: 0.2s">
+        <div class="stats-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Today</h3>
+            <p class="text-4xl font-bold text-blue-700 counter">0</p>
+            <p class="text-sm text-blue-800 mt-1">Clicks</p>
+        </div>
+
+        <div class="stats-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center">
+            <h3 class="text-lg font-semibold text-green-800 mb-2">Last 7 Days</h3>
+            <p class="text-4xl font-bold text-green-700 counter">0</p>
+            <p class="text-sm text-green-800 mt-1">Clicks</p>
+        </div>
+
+        <div class="stats-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl text-center">
+            <h3 class="text-lg font-semibold text-purple-800 mb-2">Last 30 Days</h3>
+            <p class="text-4xl font-bold text-purple-700 counter">0</p>
+            <p class="text-sm text-purple-800 mt-1">Clicks</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in" style="animation-delay: 0.3s">
+        <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <h3 class="text-lg font-bold p-5 border-b bg-gray-50">Top Countries</h3>
+            <div class="p-5 chart-container">
+                <canvas id="countryChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <h3 class="text-lg font-bold p-5 border-b bg-gray-50">Recent Activity</h3>
+            <div class="p-5 max-h-80 overflow-y-auto activity-list">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="py-2 text-left text-gray-600">Time</th>
+                            <th class="py-2 text-left text-gray-600">Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for click in recent_clicks %}
+                            <tr class="hover:bg-gray-50 border-b border-gray-100 activity-row">
+                                <td class="py-3">{{ click.timestamp|date:"M d, Y H:i" }}</td>
+                                <td class="py-3">
+                                    {% if click.country %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="flex h-2 w-2 relative">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                                            </span>
+                                            {{ click.country }}{% if click.city %}, {{ click.city }}{% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="flex h-2 w-2 relative">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-500"></span>
+                                            </span>
+                                            Unknown
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2" class="py-6 text-center text-gray-500">No clicks recorded yet</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="copy-notification" class="copy-notification">URL copied to clipboard!</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fade in animation
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            element.style.opacity = 1;
+            element.style.transform = 'translateY(0)';
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+
+        // Counter animation
+        const counterElements = document.querySelectorAll('.counter');
+        const dailyClicks = {{ daily_clicks }};
+        const weeklyClicks = {{ weekly_clicks }};
+        const monthlyClicks = {{ monthly_clicks }};
+        const clickValues = [dailyClicks, weeklyClicks, monthlyClicks];
+
+        counterElements.forEach((counter, index) => {
+            const target = clickValues[index];
+            const duration = 1500; // animation duration in milliseconds
+            const frameDuration = 1000 / 60; // 60fps
+            const totalFrames = Math.round(duration / frameDuration);
+            const easeOutQuad = t => t * (2 - t);
+
+            let frame = 0;
+            const countTo = parseInt(target, 10);
+
+            const animate = () => {
+                frame++;
+                const progress = easeOutQuad(frame / totalFrames);
+                const currentCount = Math.round(countTo * progress);
+
+                if (currentCount === countTo) {
+                    counter.textContent = countTo;
+                    return;
+                }
+
+                counter.textContent = currentCount;
+                requestAnimationFrame(animate);
+            };
+
+            setTimeout(() => {
+                requestAnimationFrame(animate);
+            }, 300 * index); // Stagger the animations
+        });
+
+        // Copy to clipboard with improved notification
+        const copyButton = document.getElementById('copy-button');
+        const notification = document.getElementById('copy-notification');
+
+        copyButton.addEventListener('click', function() {
+            navigator.clipboard.writeText('{{ request.scheme }}://{{ request.get_host }}/{{ url.short_code }}').then(() => {
+                notification.classList.add('show');
+                copyButton.classList.remove('pulse');
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        });
+
+        // Country Chart with animation
+        const countryData = [
+            {% for item in country_stats %}
+                { country: "{{ item.country|default:'Unknown' }}", count: {{ item.count }} },
+            {% endfor %}
+        ];
+
+        if (countryData.length > 0) {
+            const ctx = document.getElementById('countryChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: countryData.map(item => item.country),
+                    datasets: [{
+                        label: 'Clicks by Country',
+                        data: countryData.map(item => item.count),
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)',  // indigo
+                            'rgba(59, 130, 246, 0.8)', // blue
+                            'rgba(16, 185, 129, 0.8)', // green
+                            'rgba(139, 92, 246, 0.8)', // purple
+                            'rgba(236, 72, 153, 0.8)', // pink
+                            'rgba(245, 158, 11, 0.8)', // amber
+                            'rgba(239, 68, 68, 0.8)',  // red
+                            'rgba(6, 182, 212, 0.8)',  // cyan
+                            'rgba(5, 150, 105, 0.8)',  // emerald
+                            'rgba(124, 58, 237, 0.8)'  // violet
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Activity list animation
+        const activityRows = document.querySelectorAll('.activity-row');
+        activityRows.forEach((row, index) => {
+            row.style.opacity = 0;
+            row.style.transform = 'translateX(20px)';
+
+            setTimeout(() => {
+                row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                row.style.opacity = 1;
+                row.style.transform = 'translateX(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %}

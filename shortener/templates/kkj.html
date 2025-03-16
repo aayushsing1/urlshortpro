@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Create URL - URL Shortener{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6">Create Shortened URL</h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div>
+            <label for="id_original_url" class="block text-gray-700 font-medium mb-2">Original URL</label>
+            {{ form.original_url }}
+            {% if form.original_url.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.original_url.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="border-t pt-6">
+            <h3 class="text-xl font-bold mb-4">First Interstitial Page</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_interstitial1_title" class="block text-gray-700 font-medium mb-2">Title</label>
+                    {{ form.interstitial1_title }}
+                </div>
+
+                <div>
+                    <label for="id_interstitial1_wait_time" class="block text-gray-700 font-medium mb-2">Wait Time (seconds)</label>
+                    <input type="number" name="interstitial1_wait_time" id="id_interstitial1_wait_time" value="{{ form.interstitial1_wait_time.value|default:5 }}" class="w-full px-4 py-2 border rounded">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label for="id_interstitial1_message" class="block text-gray-700 font-medium mb-2">Message</label>
+                {{ form.interstitial1_message }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label for="id_interstitial1_background" class="block text-gray-700 font-medium mb-2">Background Color</label>
+                    {{ form.interstitial1_background }}
+                </div>
+
+                <div>
+                    <label for="id_interstitial1_text_color" class="block text-gray-700 font-medium mb-2">Text Color</label>
+                    {{ form.interstitial1_text_color }}
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t pt-6">
+            <h3 class="text-xl font-bold mb-4">Second Interstitial Page</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_interstitial2_title" class="block text-gray-700 font-medium mb-2">Title</label>
+                    {{ form.interstitial2_title }}
+                </div>
+
+                <div>
+                    <label for="id_interstitial2_wait_time" class="block text-gray-700 font-medium mb-2">Wait Time (seconds)</label>
+                    <input type="number" name="interstitial2_wait_time" id="id_interstitial2_wait_time" value="{{ form.interstitial2_wait_time.value|default:5 }}" class="w-full px-4 py-2 border rounded">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label for="id_interstitial2_message" class="block text-gray-700 font-medium mb-2">Message</label>
+                {{ form.interstitial2_message }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label for="id_interstitial2_background" class="block text-gray-700 font-medium mb-2">Background Color</label>
+                    {{ form.interstitial2_background }}
+                </div>
+
+                <div>
+                    <label for="id_interstitial2_text_color" class="block text-gray-700 font-medium mb-2">Text Color</label>
+                    {{ form.interstitial2_text_color }}
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+                Create URL
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

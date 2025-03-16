@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Almost There - URL Shortener{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-[80vh] bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all duration-500 hover:shadow-2xl animate-fadeIn" style="background-color: {{ url.interstitial2_background }}; color: {{ url.interstitial2_text_color }}">
+        <!-- Top decoration - abstract shapes -->
+        <div class="h-24 w-full relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-400 rounded-full opacity-10"></div>
+            <div class="absolute top-6 right-12 w-16 h-16 bg-blue-600 rounded-full opacity-10"></div>
+            <div class="absolute -top-4 -left-4 w-24 h-24 bg-green-400 rounded-full opacity-10"></div>
+            <div class="absolute top-8 left-10 w-12 h-12 bg-green-600 rounded-full opacity-10"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-8 pb-10 text-center">
+            <div class="flex justify-center mb-8">
+                <div class="h-20 w-20 bg-green-100 flex items-center justify-center rounded-full animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-bold mb-4 animate-fadeInUp" style="color: {{ url.interstitial2_text_color }}">{{ url.interstitial2_title }}</h2>
+            <p class="text-lg mb-10 max-w-md mx-auto opacity-90 animate-fadeInUp" style="animation-delay: 100ms">{{ url.interstitial2_message }}</p>
+
+            <div class="mb-10 animate-fadeInUp" style="animation-delay: 200ms">
+                <div class="relative flex justify-center items-center mb-3">
+                    <div class="w-full bg-gray-200 rounded-full h-3 max-w-sm overflow-hidden">
+                        <div id="progress-bar" class="bg-green-600 h-3 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                    <span id="countdown" class="absolute text-xs font-bold text-white bg-green-600 rounded-full h-6 w-6 flex items-center justify-center -right-2">{{ url.interstitial2_wait_time }}</span>
+                </div>
+                <div class="flex justify-between max-w-sm mx-auto text-sm opacity-70 mt-5">
+                    <span>Processing</span>
+                    <span>Almost there</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-2 text-sm opacity-70 animate-fadeInUp" style="animation-delay: 300ms">
+                <div class="flex space-x-1">
+                    <span class="animate-bounce" style="animation-delay: 0ms">•</span>
+                    <span class="animate-bounce" style="animation-delay: 100ms">•</span>
+                    <span class="animate-bounce" style="animation-delay: 200ms">•</span>
+                </div>
+                <p>Preparing your destination</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const waitTime = {{ url.interstitial2_wait_time }};
+        const progressBar = document.getElementById('progress-bar');
+        const countdown = document.getElementById('countdown');
+        let timeLeft = waitTime;
+
+        function updateCountdown() {
+            const progressPercentage = ((waitTime - timeLeft) / waitTime) * 100;
+            progressBar.style.width = progressPercentage + '%';
+            countdown.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+
+                // Add excitement animation before redirect
+                document.querySelector('.max-w-lg').classList.add('scale-105');
+                document.querySelector('.max-w-lg').style.transition = 'all 0.3s ease-out';
+
+                setTimeout(() => {
+                    document.querySelector('.max-w-lg').classList.add('opacity-0');
+                    setTimeout(() => {
+                        window.location.href = "{% url 'final_redirect' url.short_code %}";
+                    }, 300);
+                }, 300);
+            }
+            timeLeft--;
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    });
+</script>
+{% endblock %}
