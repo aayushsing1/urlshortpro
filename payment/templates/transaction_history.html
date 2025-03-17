@@ -1,0 +1,53 @@
+{% extends 'basee.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Transaction History</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Your Transactions</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Transaction ID</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.timestamp|date:"M d, Y H:i" }}</td>
+                            <td>${{ transaction.amount|floatformat:2 }}</td>
+                            <td>{{ transaction.payment_method|default:"N/A" }}</td>
+                            <td>
+                                {% if transaction.status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif transaction.status == 'completed' %}
+                                    <span class="badge badge-success">Completed</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.transaction_id|default:"N/A" }}</td>
+                            <td>{{ transaction.notes|default:"N/A"|truncatechars:50 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No transactions yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'basee.html' %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Hide all payment detail fields initially
+        $('.payment-details').hide();
+        
+        // Show relevant fields based on initial payment method
+        showPaymentFields($('#id_payment_method').val());
+        
+        // Update shown fields when payment method changes
+        $('#id_payment_method').change(function() {
+            showPaymentFields($(this).val());
+        });
+        
+        function showPaymentFields(paymentMethod) {
+            // Hide all payment detail fields
+            $('.payment-details').hide();
+            
+            // Show the relevant ones
+            if (paymentMethod == 'paypal') {
+                $('.paypal-details').show();
+            } else if (paymentMethod == 'bank_transfer') {
+                $('.bank-details').show();
+            } else if (paymentMethod == 'crypto') {
+                $('.crypto-details').show();
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Request Withdrawal</h1>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Balance</h6>
+                </div>
+                <div class="card-body">
+                    <h2 class="text-center mb-0">${{ balance.amount|floatformat:2 }}</h2>
+                    <p class="text-center text-muted mt-2">Minimum withdrawal: ${{ min_withdrawal }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Withdrawal Form</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.amount.id_for_label }}">Amount (USD)</label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                                <div class="text-danger">{{ form.amount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}">Payment Method</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- PayPal details -->
+                        <div class="payment-details paypal-details">
+                            <h6 class="mt-4 mb-3">PayPal Details</h6>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.paypal_email.id_for_label }}">PayPal Email</label>
+                                {{ form.paypal_email }}
+                                {% if form.paypal_email.errors %}
+                                    <div class="text-danger">{{ form.paypal_email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer details -->
+                        <div class="payment-details bank-details">
+                            <h6 class="mt-4 mb-3">Bank Transfer Details</h6>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.bank_name.id_for_label }}">Bank Name</label>
+                                {{ form.bank_name }}
+                                {% if form.bank_name.errors %}
+                                    <div class="text-danger">{{ form.bank_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.account_name.id_for_label }}">Account Holder Name</label>
+                                {{ form.account_name }}
+                                {% if form.account_name.errors %}
+                                    <div class="text-danger">{{ form.account_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.account_number.id_for_label }}">Account Number</label>
+                                {{ form.account_number }}
+                                {% if form.account_number.errors %}
+                                    <div class="text-danger">{{ form.account_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.routing_number.id_for_label }}">Routing Number</label>
+                                {{ form.routing_number }}
+                                {% if form.routing_number.errors %}
+                                    <div class="text-danger">{{ form.routing_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Cryptocurrency details -->
+                        <div class="payment-details crypto-details">
+                            <h6 class="mt-4 mb-3">Cryptocurrency Details</h6>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.crypto_type.id_for_label }}">Cryptocurrency</label>
+                                {{ form.crypto_type }}
+                                {% if form.crypto_type.errors %}
+                                    <div class="text-danger">{{ form.crypto_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.crypto_address.id_for_label }}">Wallet Address</label>
+                                {{ form.crypto_address }}
+                                {% if form.crypto_address.errors %}
+                                    <div class="text-danger">{{ form.crypto_address.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-3">Request Withdrawal</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

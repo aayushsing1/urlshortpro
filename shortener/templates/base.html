@@ -25,6 +25,8 @@
                 <a href="{% url 'create_url' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
                     <i class="fas fa-link mr-2"></i> Create URL
                 </a>
+                <a href="{% url 'earnings_dashboard' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 transition duration-200">
+                    <i class="fas fa-link mr-2"></i> Earning
                 <a href="{% url 'logout' %}" class="text-white text-lg py-3 px-4 rounded hover:bg-blue-800 mt-auto transition duration-200">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </a>
@@ -56,6 +58,9 @@
                         </a>
                         <a href="{% url 'create_url' %}" class="hover:text-blue-200 transition duration-200 flex items-center">
                             <i class="fas fa-link mr-2"></i> Create URL
+                        </a>
+                        <a href="{% url 'earnings_dashboard' %}" class="hover:text-blue-200 transition duration-200 flex items-center">
+                            <i class="fas fa-dollar-sign mr-2"></i>Earning
                         </a>
                         <a href="{% url 'logout' %}" class="bg-blue-800 hover:bg-blue-900 text-white py-2 px-4 rounded-lg transition duration-200 flex items-center">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logout

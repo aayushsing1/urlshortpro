@@ -1,0 +1,140 @@
+{% extends 'basee.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Earnings History</h1>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Earnings by URL</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Short URL</th>
+                                    <th>Original URL</th>
+                                    <th>Total Earnings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for url in url_earnings %}
+                                <tr>
+                                    <td>{{ url.url__short_code }}</td>
+                                    <td>{{ url.url__original_url|truncatechars:30 }}</td>
+                                    <td>${{ url.total|floatformat:4 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No earnings data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Earnings by Country</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>Total Earnings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for country in country_earnings %}
+                                <tr>
+                                    <td>{{ country.country|default:"Unknown" }}</td>
+                                    <td>${{ country.total|floatformat:4 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No country data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Daily Earnings (Last 30 Days)</h6>
+        </div>
+        <div class="card-body">
+            <div class="chart-area">
+                <canvas id="earningsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Chart data
+    var dates = [{% for item in date_earnings reversed %}'{{ item.date }}',{% endfor %}];
+    var earnings = [{% for item in date_earnings reversed %}{{ item.amount }},{% endfor %}];
+
+    // Create chart
+    var ctx = document.getElementById('earningsChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Daily Earnings ($)',
+                data: earnings,
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointBorderColor: '#fff',
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointHoverBorderColor: '#fff',
+                pointHitRadius: 10,
+                lineTension: 0.3
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(4);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.raw.toFixed(4);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

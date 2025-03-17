@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}URL Shortener{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+        }
+
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #4e73df;
+            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            background-size: cover;
+            color: white;
+        }
+
+        .sidebar-heading {
+            padding: 1rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            display: block;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: white;
+        }
+
+        .sidebar-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: white;
+        }
+
+        .sidebar-link i {
+            margin-right: 0.5rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .btn-primary, .badge-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #4262c5;
+            border-color: #4262c5;
+        }
+
+        .btn-success, .badge-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-info, .badge-info {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+
+        .btn-warning, .badge-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-danger, .badge-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .footer {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .border-left-primary {
+            border-left: 0.25rem solid var(--primary-color) !important;
+        }
+
+        .border-left-success {
+            border-left: 0.25rem solid var(--success-color) !important;
+        }
+
+        .border-left-info {
+            border-left: 0.25rem solid var(--info-color) !important;
+        }
+
+        .border-left-warning {
+            border-left: 0.25rem solid var(--warning-color) !important;
+        }
+
+        .border-left-danger {
+            border-left: 0.25rem solid var(--danger-color) !important;
+        }
+
+        .alert {
+            border-radius: 0.35rem;
+        }
+
+        .chart-area {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-link me-2"></i>URLShortener
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'earnings_dashboard' %}">Earnings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'create_url' %}">Create URL</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'earnings_dashboard' %}">Earnings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            {% if user.is_authenticated %}
+                <!-- Sidebar -->
+                <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                    <div class="position-sticky pt-3">
+                        <div class="sidebar-heading">Main Menu</div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}">
+                                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if request.path == '/create_url/' %}active{% endif %}" href="{% url 'create_url' %}">
+                                    <i class="fas fa-fw fa-plus-circle"></i>
+                                    Create URL
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if '/earnings/' in request.path %}active{% endif %}" href="{% url 'earnings_dashboard' %}">
+                                    <i class="fas fa-fw fa-dollar-sign"></i>
+                                    Earnings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if '/withdrawal/' in request.path %}active{% endif %}" href="{% url 'withdrawal_request' %}">
+                                    <i class="fas fa-fw fa-money-bill-wave"></i>
+                                    Withdraw
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if '/earnings/history/' in request.path %}active{% endif %}" href="{% url 'earnings_history' %}">
+                                    <i class="fas fa-fw fa-chart-line"></i>
+                                    Earnings History
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link sidebar-link {% if '/transactions/' in request.path %}active{% endif %}" href="{% url 'transaction_history' %}">
+                                    <i class="fas fa-fw fa-exchange-alt"></i>
+                                    Transactions
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Main Content Area -->
+                <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Page Content -->
+                    {% block content %}{% endblock %}
+                </div>
+            {% else %}
+                <!-- Non-authenticated Content -->
+                <div class="col-12">
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <span class="text-muted">&copy; {% now "Y" %} URL Shortener. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Copy URL to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('URL copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
