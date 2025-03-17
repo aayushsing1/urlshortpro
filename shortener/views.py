@@ -119,6 +119,7 @@ def redirect_to_url(request, short_code):
     ip = tracker.get_client_ip(request)
     country, city = tracker.get_location_data(ip)
     
+    # Store click data
     click_data = ClickData.objects.create(
         url=url,
         ip_address=ip,
@@ -127,11 +128,7 @@ def redirect_to_url(request, short_code):
         user_agent=request.META.get('HTTP_USER_AGENT'),
         referrer=request.META.get('HTTP_REFERER')
     )
-
-    # Increment click counter
     
-    url.save()
-
     # Redirect to first interstitial page
     return redirect('interstitial1', short_code=short_code)
 

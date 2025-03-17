@@ -54,3 +54,16 @@ class ClickData(models.Model):
 
     def __str__(self):
         return f"Click on {self.url.short_code} from {self.country or 'Unknown'}"
+    
+
+# Add to models.py in the shortener app
+class DeviceTracker(models.Model):
+    url = models.ForeignKey(Url, on_delete=models.CASCADE, related_name='device_trackers')
+    device_identifier = models.CharField(max_length=255)
+    last_earning_date = models.DateField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('url', 'device_identifier')
+        
+    def __str__(self):
+        return f"{self.url.short_code} - {self.device_identifier[:10]}..."

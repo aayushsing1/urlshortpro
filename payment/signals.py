@@ -1,6 +1,5 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 from shortener.models import ClickData
 from .services import EarningService
 

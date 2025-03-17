@@ -23,9 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'payment.apps.PaymentsConfig',
     'shortener',
     'colorfield',
-    'payment',
+    
 ]
 
 MIDDLEWARE = [
